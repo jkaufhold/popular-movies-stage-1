@@ -1,0 +1,14 @@
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/prim_view_header">
+        <ListPreference
+            app:defaultValue="@string/sort_order_default"
+            app:entries="@array/movies_sort_order_keys"
+            app:entryValues="@array/movies_sort_order_values"
+            app:key="@string/sort_order_key"
+            app:title="@string/sort_order_header"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

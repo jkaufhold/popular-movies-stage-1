@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+
+    <string name="tmd_api_key">tmd_api_key</string>
+    <string name="error_message">Error occurred. \n No film information can be loaded. \n There is may be no internet connection.</string>
+    <string name="default_movie_title">No title</string>
+    <string name="movie_image_description">Movie poster image</string>
+
+    <!-- TMD BASE URLS -->
+    <string name="image_base_url">http://image.tmdb.org/t/p/w185</string>
+    <string name="tmdb_base_url">https://api.themoviedb.org/3/</string>
+
+    <string name="title_activity_settings">Settings</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Preference Titles -->
+    <string name="sort_order_key">sort_order</string>
+    <string name="sort_order_header">Movies sort order</string>
+
+    <!-- Sor order Preferences -->
+    <string name="sorting_order_menu_item">Sorting order</string>
+    <string name="sort_order_default">popularity</string>
+    <string name="error_image_loading_message">ERROR while loading the image</string>
+    <string name="popularity_format">%.2f</string>
+    <string name="prim_view_header">Movies list settings</string>
+
+</resources>

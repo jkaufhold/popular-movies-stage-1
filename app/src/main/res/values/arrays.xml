@@ -1,0 +1,11 @@
+<resources>
+    <!-- Movies sort order Preference -->
+    <string-array name="movies_sort_order_keys">
+        <item>popularity</item>
+        <item>rating</item>
+    </string-array>
+    <string-array name="movies_sort_order_values">
+        <item>popularity</item>
+        <item>rating</item>
+    </string-array>
+</resources>
