@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements MoviePageLoader {
 
         RecyclerView moviesRecyclerView = findViewById(R.id.rv_movies_list);
         moviesRecyclerView.setHasFixedSize(true);
-        this.adapter = new MoviesListAdapter(this.getApplicationContext());
+        this.adapter = new MoviesListAdapter(this);
         moviesRecyclerView.setAdapter(adapter);
         if(savedInstanceState == null || !savedInstanceState.containsKey(MOVIES)) {
             loadPage(1);
@@ -107,11 +107,11 @@ public class MainActivity extends AppCompatActivity implements MoviePageLoader {
             String default_sort_order = getString(R.string.sort_order_default);
             String sortOrder = sharedPreferences.getString(getString(R.string.sort_order_key), default_sort_order);
             Call<MovieResultPage> movies;
-            if(sortOrder.equals(default_sort_order)) {
-                movies = api.loadPopularMovies(loadingPage);
-            } else {
-                movies = api.loadTopRated(loadingPage);
-            }
+            movies = api.loadMovies(
+                    (sortOrder.equals(default_sort_order))
+                            ?TheMovieDatabaseApi.POPULAR
+                            :TheMovieDatabaseApi.TOP_RATED,
+                    loadingPage);
             if(movies == null) {
                 return null;
             }

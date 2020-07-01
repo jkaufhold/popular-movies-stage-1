@@ -15,12 +15,10 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.internal.EverythingIsNonNull;
 
 public class RetrofitFactory {
     private static Retrofit INSTANCE;
 
-    @EverythingIsNonNull
     public static void initialize(Context context, String language) {
         String apiKey = context.getResources().getString(R.string.themoviedatabase_api_key);
 

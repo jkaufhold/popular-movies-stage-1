@@ -7,22 +7,9 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface TheMovieDatabaseApi {
+    String POPULAR = "popular";
+    String TOP_RATED = "top_rated";
+
     @GET("movie/{type}")
     Call<MovieResultPage> loadMovies(@Path("type") String type, @Query("page") Integer page);
-
-    default Call<MovieResultPage> loadPopularMovies(@Query("page") Integer page) {
-        return loadMovies("popular", page);
-    }
-
-    default Call<MovieResultPage> loadTopRated(@Query("page") Integer page) {
-        return loadMovies("top_rated", page);
-    }
-
-    default Call<MovieResultPage> loadPopularMovies() {
-        return loadPopularMovies(1);
-    }
-
-    default Call<MovieResultPage> loadTopRated() {
-        return loadTopRated(1);
-    }
 }

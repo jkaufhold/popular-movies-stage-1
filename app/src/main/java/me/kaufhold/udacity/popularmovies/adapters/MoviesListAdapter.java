@@ -63,18 +63,21 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Mo
             return;
         }
         holder.setMovie(movie);
-        Picasso.get().load(context.getString(R.string.image_base_url) + movie.getPosterPath())
-                .into(holder.movie_item_view, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        Log.d(TAG, "Image loaded");
-                    }
-                    @Override
-                    public void onError(Exception e) {
-                        closeOnLoadError();
-                        Log.e(TAG, "ERROR while loading the image", e);
-                    }
-                });
+        if(movie.getPosterPath() != null) {
+            Picasso.get().load(context.getString(R.string.image_base_url) + movie.getPosterPath())
+                    .into(holder.movie_item_view, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d(TAG, "Image loaded");
+                        }
+                        @Override
+                        public void onError(Exception e) {
+                            closeOnLoadError();
+                            Log.e(TAG, "ERROR while loading the image", e);
+                        }
+                    });
+        }
+
     }
 
     private void closeOnLoadError() {
@@ -124,6 +127,4 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Mo
         this.movies.addAll(movies);
         notifyDataSetChanged();
     }
-
-
 }

@@ -55,35 +55,38 @@ public class DetailsActivity extends AppCompatActivity {
             return;
         }
 
-        Movie movie = bundle.getParcelable(MOVIE_ARGUMENT);
-        if(movie == null) {
-            closeOnError();
-            return;
-        }
         tvTitle = findViewById(R.id.movie_details_title);
         tvReleaseDate = findViewById(R.id.release_date);
         tvPopularity = findViewById(R.id.movie_popularity);
         tvOverview = findViewById(R.id.movie_overview);
         imageView = findViewById(R.id.image_iv);
 
-        populateUI(movie);
+        if(bundle.containsKey(MOVIE_ARGUMENT)) {
+            populateUI(bundle.getParcelable(MOVIE_ARGUMENT));
+        }
     }
 
-    private void populateUI(Movie movie){
-        Picasso.get().load(getString(R.string.image_base_url) + movie.getPosterPath())
-                .into(imageView, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        Log.d(TAG, "Image loaded");
-                    }
+    private void populateUI(Movie movie) {
+        if(movie == null) {
+            closeOnError();
+            return;
+        }
+        String posterPath = movie.getPosterPath();
+        if(posterPath != null){
+            Picasso.get().load(getString(R.string.image_base_url) + posterPath)
+                    .into(imageView, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d(TAG, "Image loaded");
+                        }
 
-                    @Override
-                    public void onError(Exception e) {
-                        closeOnLoadError();
-                        Log.e(TAG, "ERROR while loading the image");
-                    }
-                });
-
+                        @Override
+                        public void onError(Exception e) {
+                            closeOnLoadError();
+                            Log.e(TAG, "ERROR while loading the image");
+                        }
+                    });
+        }
         tvTitle.setText(movie.getTitle());
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
         cal.setTime(movie.getReleaseDate());
