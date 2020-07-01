@@ -40,13 +40,37 @@
             app:layout_constraintTop_toBottomOf="@+id/movie_details_title" />
 
         <TextView
+            android:id="@+id/release_date_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="@string/release_date_label"
+            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+            android:layout_marginVertical="@dimen/activity_vertical_margin"
+            app:layout_constraintStart_toEndOf="@+id/image_iv"
+            app:layout_constraintTop_toBottomOf="@+id/movie_details_title"
+            />
+
+        <TextView
             android:id="@+id/release_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
             android:layout_marginVertical="@dimen/activity_vertical_margin"
-            app:layout_constraintStart_toEndOf="@+id/image_iv"
+            app:layout_constraintStart_toEndOf="@+id/release_date_label"
             app:layout_constraintTop_toBottomOf="@+id/movie_details_title" />
+
+        <TextView
+            android:id="@+id/popularity_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="@string/popularity_label"
+            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+            android:layout_marginVertical="@dimen/activity_vertical_margin"
+            app:layout_constraintStart_toEndOf="@+id/image_iv"
+            app:layout_constraintTop_toBottomOf="@+id/release_date"
+            />
 
         <TextView
             android:id="@+id/movie_popularity"
@@ -55,7 +79,7 @@
             android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
             android:layout_marginVertical="@dimen/activity_vertical_margin"
             android:textColor="@color/colorPrimaryDark"
-            app:layout_constraintStart_toEndOf="@+id/image_iv"
+            app:layout_constraintStart_toEndOf="@+id/popularity_label"
             app:layout_constraintTop_toBottomOf="@+id/release_date" />
 
         <TextView

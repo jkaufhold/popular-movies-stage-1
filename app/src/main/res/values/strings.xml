@@ -23,5 +23,7 @@
     <string name="error_image_loading_message">ERROR while loading the image</string>
     <string name="popularity_format">%.2f</string>
     <string name="prim_view_header">Movies list settings</string>
+    <string name="release_date_label">"Release date: "</string>
+    <string name="popularity_label">"Vote average: "</string>
 
 </resources>
