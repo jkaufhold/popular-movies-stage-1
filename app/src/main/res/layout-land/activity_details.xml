@@ -30,9 +30,9 @@
         <ImageView
             android:id="@+id/image_iv"
             android:layout_width="123dp"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginTop="@dimen/activity_top_margin"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginStart="24dp"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:contentDescription="@string/movie_image_description"
             android:layout_height="185dp"
             android:scaleType="centerCrop"
@@ -43,76 +43,70 @@
             android:id="@+id/release_date_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="@string/release_date_label"
+            android:padding="0dp"
             android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-            android:layout_marginVertical="@dimen/activity_vertical_margin"
+            android:text="@string/release_date_label"
+            android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@+id/image_iv"
-            app:layout_constraintTop_toBottomOf="@+id/movie_details_title"
-            />
+            app:layout_constraintTop_toTopOf="@+id/image_iv" />
 
         <TextView
             android:id="@+id/release_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-            android:layout_marginVertical="@dimen/activity_vertical_margin"
             app:layout_constraintStart_toEndOf="@+id/release_date_label"
-            app:layout_constraintTop_toBottomOf="@+id/movie_details_title" />
+            app:layout_constraintTop_toTopOf="@+id/release_date_label" />
 
         <TextView
             android:id="@+id/popularity_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="@string/popularity_label"
             android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-            android:layout_marginVertical="@dimen/activity_vertical_margin"
+            android:layout_marginTop="9dp"
+            android:text="@string/popularity_label"
+            android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@+id/image_iv"
-            app:layout_constraintTop_toBottomOf="@+id/release_date"
-            />
+            app:layout_constraintTop_toBottomOf="@+id/release_date_label" />
 
         <TextView
             android:id="@+id/movie_popularity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-            android:layout_marginVertical="@dimen/activity_vertical_margin"
+            android:layout_marginStart="16dp"
             android:textColor="@color/colorPrimaryDark"
             app:layout_constraintStart_toEndOf="@+id/popularity_label"
-            app:layout_constraintTop_toBottomOf="@+id/release_date" />
+            app:layout_constraintTop_toTopOf="@+id/popularity_label" />
+
+        <ScrollView
+            android:id="@+id/movie_overview_scroll"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_top_margin"
+            app:layout_constraintBottom_toBottomOf="@+id/image_iv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/image_iv"
+            app:layout_constraintTop_toBottomOf="@+id/popularity_label" >
 
         <TextView
             android:id="@+id/movie_overview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/image_iv"
-            android:padding="@dimen/activity_horizontal_margin"
-            tools:text="@string/error_message"/>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1px"
-            android:background="#000000"
-            app:layout_constraintBottom_toTopOf="@+id/rv_movies_trailers"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/movie_overview" />
+            android:layout_height="wrap_content" />
+        </ScrollView>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_movies_trailers"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
             android:orientation="vertical"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/movie_overview"
-            app:layout_constraintVertical_bias="1.0"
+            app:layout_constraintTop_toBottomOf="@+id/image_iv"
             app:reverseLayout="false"
             app:spanCount="2"/>
 
@@ -125,7 +119,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/movie_overview" />
+            app:layout_constraintTop_toBottomOf="@+id/movie_overview_scroll" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

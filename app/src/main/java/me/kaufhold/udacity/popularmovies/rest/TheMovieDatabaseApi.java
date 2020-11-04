@@ -1,6 +1,7 @@
 package me.kaufhold.udacity.popularmovies.rest;
 
 import me.kaufhold.udacity.popularmovies.model.MovieResultPage;
+import me.kaufhold.udacity.popularmovies.model.TrailersResultPage;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
@@ -12,4 +13,7 @@ public interface TheMovieDatabaseApi {
 
     @GET("movie/{type}")
     Call<MovieResultPage> loadMovies(@Path("type") String type, @Query("page") Integer page);
+
+    @GET("movie/{id}/videos")
+    Call<TrailersResultPage> loadMovieTrailers(@Path("id") String id);
 }

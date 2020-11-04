@@ -24,6 +24,7 @@ import java.util.ArrayList;
 
 import me.kaufhold.udacity.popularmovies.adapters.MoviePageLoader;
 import me.kaufhold.udacity.popularmovies.adapters.MoviesListAdapter;
+import me.kaufhold.udacity.popularmovies.db.FavoriteMoviesDB;
 import me.kaufhold.udacity.popularmovies.model.MovieResultPage;
 import me.kaufhold.udacity.popularmovies.rest.RetrofitFactory;
 import me.kaufhold.udacity.popularmovies.rest.TheMovieDatabaseApi;
@@ -41,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements MoviePageLoader {
     private MoviesListAdapter adapter;
     private Integer loadingPage = null;
 
+    private FavoriteMoviesDB moviesDB;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -52,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements MoviePageLoader {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        moviesDB = FavoriteMoviesDB.getInstance(this.getApplicationContext());
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 

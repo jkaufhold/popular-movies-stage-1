@@ -3,6 +3,7 @@
 
     <string name="tmd_api_key">tmd_api_key</string>
     <string name="error_message">Error occurred. \n No film information can be loaded. \n There is may be no internet connection.</string>
+    <string name="no_trailers_error_message">Error occurred. \n No trailers can be loaded. \n There is may be no internet connection.</string>
     <string name="default_movie_title">No title</string>
     <string name="movie_image_description">Movie poster image</string>
 
@@ -25,5 +26,6 @@
     <string name="prim_view_header">Movies list settings</string>
     <string name="release_date_label">"Release date: "</string>
     <string name="popularity_label">"Vote average: "</string>
+    <string name="play_image_description">Play image</string>
 
 </resources>
