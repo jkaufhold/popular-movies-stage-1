@@ -5,37 +5,32 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Date;
-
 public class Movie implements Parcelable {
-    private String id;
+    private Integer id;
     @SerializedName("poster_path")
     private String posterPath;
     private String title;
     private Float popularity;
     private String overview;
     @SerializedName("release_date")
-    private Date releaseDate;
+    private String releaseDate;
 
-    public Movie() {
-
-    }
+    public Movie() {}
 
     protected Movie(Parcel in) {
-        this.id = in.readString();
+        this.id = (Integer) in.readValue(Integer.class.getClassLoader());
         this.posterPath = in.readString();
         this.title = in.readString();
         this.popularity = (Float) in.readValue(Float.class.getClassLoader());
         this.overview = in.readString();
-        long tmpReleaseDate = in.readLong();
-        this.releaseDate = tmpReleaseDate == -1 ? null : new Date(tmpReleaseDate);
+        this.releaseDate = in.readString();
     }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -71,11 +66,11 @@ public class Movie implements Parcelable {
         this.overview = overview;
     }
 
-    public Date getReleaseDate() {
+    public String getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(Date releaseDate) {
+    public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
     }
 
@@ -86,12 +81,12 @@ public class Movie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.id);
+        dest.writeValue(this.id);
         dest.writeString(this.posterPath);
         dest.writeString(this.title);
         dest.writeValue(this.popularity);
         dest.writeString(this.overview);
-        dest.writeLong(this.releaseDate != null ? this.releaseDate.getTime() : -1);
+        dest.writeString(this.releaseDate);
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {

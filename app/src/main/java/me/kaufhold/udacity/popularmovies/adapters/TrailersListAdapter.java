@@ -28,8 +28,6 @@ public class TrailersListAdapter extends RecyclerView.Adapter<TrailersListAdapte
         this.trailers = trailers;
     }
 
-    public List<Trailer> getTrailers() { return this.trailers;}
-
     @NonNull
     @Override
     public TrailersListAdapter.TrailersListHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -76,7 +74,9 @@ public class TrailersListAdapter extends RecyclerView.Adapter<TrailersListAdapte
 
         @Override
         public void onClick(View movie_image_view) {
-            context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v="+trailer.getKey())));
+            String video_id = trailer.getKey();
+            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://youtube.com/watch?v=" + video_id));
+            context.startActivity(i);
         }
 
         public void setTrailer(Trailer trailer) {

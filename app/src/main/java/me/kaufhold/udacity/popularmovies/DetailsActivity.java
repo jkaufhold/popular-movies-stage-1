@@ -8,53 +8,55 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.TimeZone;
 
+import me.kaufhold.udacity.popularmovies.adapters.PageLoader;
+import me.kaufhold.udacity.popularmovies.adapters.ReviewsListAdapter;
 import me.kaufhold.udacity.popularmovies.adapters.TrailersListAdapter;
+import me.kaufhold.udacity.popularmovies.databinding.ActivityDetailsBinding;
+import me.kaufhold.udacity.popularmovies.db.FavoriteMoviesDB;
 import me.kaufhold.udacity.popularmovies.model.Movie;
+import me.kaufhold.udacity.popularmovies.model.ReviewsResultPage;
 import me.kaufhold.udacity.popularmovies.model.TrailersResultPage;
 import me.kaufhold.udacity.popularmovies.rest.RetrofitFactory;
 import me.kaufhold.udacity.popularmovies.rest.TheMovieDatabaseApi;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class DetailsActivity extends AppCompatActivity {
+public class DetailsActivity extends AppCompatActivity implements PageLoader {
     private static final String TAG = DetailsActivity.class.getSimpleName();
-
-    private static final String MOVIE_ARGUMENT = "movie";
-
-    private ImageView imageView;
-    private TextView tvTitle;
-    private TextView tvReleaseDate;
-    private TextView tvPopularity;
-    private TextView tvOverview;
-    private RecyclerView rvTrailers;
-    private Movie movie;
-
-    private ProgressBar progressBar;
-    private TrailersListAdapter adapter;
+    private static final String IS_FAVORITE = "is_favorite";
+    private static final String MOVIE = "movie";
     public static final String TRAILERS = "trailers";
+    public static final String REVIEWS = "reviews";
+    public static final String PAGE = "page";
+    public static final String MAX_PAGE = "maxPage";
+
+    private ActivityDetailsBinding activityDetailsBinding;
+
+    private Integer loadingPage = null;
+    private Movie movie;
+    private TrailersListAdapter adapter;
+    private ReviewsListAdapter reviews_adapter;
+    private FavoriteMoviesDB moviesDB;
+    boolean isFavoriteMovie = false;
 
     public static Intent newIntent(Context context, Movie movie) {
         Intent intent = new Intent(context, DetailsActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putParcelable(MOVIE_ARGUMENT, movie);
+        bundle.putParcelable(MOVIE, movie);
         intent.putExtras(bundle);
         return intent;
     }
@@ -62,7 +64,7 @@ public class DetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_details);
+        activityDetailsBinding = DataBindingUtil.setContentView(this, R.layout.activity_details);
 
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -76,29 +78,49 @@ public class DetailsActivity extends AppCompatActivity {
             return;
         }
 
-        tvTitle = findViewById(R.id.movie_details_title);
-        tvReleaseDate = findViewById(R.id.release_date);
-        tvPopularity = findViewById(R.id.movie_popularity);
-        tvOverview = findViewById(R.id.movie_overview);
-        imageView = findViewById(R.id.image_iv);
-        rvTrailers = findViewById(R.id.rv_movies_trailers);
-        progressBar = findViewById(R.id.details_progress_bar);
-
-        if(bundle.containsKey(MOVIE_ARGUMENT)) {
-            movie = bundle.getParcelable(MOVIE_ARGUMENT);
-            populateUI(movie, savedInstanceState);
+        moviesDB = FavoriteMoviesDB.getInstance(this.getApplicationContext());
+        if(bundle.containsKey(MOVIE)) {
+            movie = bundle.getParcelable(MOVIE);
+            if (movie == null) {
+                closeOnError();
+                return;
+            }
         }
+
+        if(savedInstanceState != null && savedInstanceState.containsKey(IS_FAVORITE)) {
+            isFavoriteMovie = savedInstanceState.getBoolean(IS_FAVORITE);
+            populateFavoriteButton();
+        } else {
+            Thread thread = new Thread(() -> {
+                me.kaufhold.udacity.popularmovies.db.Movie selectResult = moviesDB.movieDAO().loadMovieWith(movie.getId().toString());
+                if (selectResult != null) {
+                    isFavoriteMovie = true;
+                }
+                populateFavoriteButton();
+            });
+            thread.start();
+        }
+
+        populateUI(savedInstanceState);
     }
 
-    private void populateUI(Movie movie, Bundle savedInstanceState) {
+    private void populateUI(Bundle savedInstanceState) {
         if(movie == null) {
-            closeOnError();
-            return;
+            if(savedInstanceState != null && savedInstanceState.containsKey(MOVIE)) {
+                movie = savedInstanceState.getParcelable(MOVIE);
+                if(movie == null){
+                    closeOnError();
+                    return;
+                }
+            } else {
+                closeOnError();
+                return;
+            }
         }
         String posterPath = movie.getPosterPath();
         if(posterPath != null){
             Picasso.get().load(getString(R.string.image_base_url) + posterPath)
-                    .into(imageView, new Callback() {
+                    .into(activityDetailsBinding.movieImage, new Callback() {
                         @Override
                         public void onSuccess() {
                             Log.d(TAG, "Image loaded");
@@ -111,50 +133,80 @@ public class DetailsActivity extends AppCompatActivity {
                         }
                     });
         }
-        tvTitle.setText(movie.getTitle());
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Berlin"));
-        cal.setTime(movie.getReleaseDate());
-        int year = cal.get(Calendar.YEAR);
-        tvReleaseDate.setText(String.valueOf(year));
-        tvPopularity.setText(getString(R.string.popularity_format, movie.getPopularity()));
-        tvOverview.setText(movie.getOverview());
+        activityDetailsBinding.movieDetailsTitle.setText(movie.getTitle());
+        activityDetailsBinding.releaseDate.setText(movie.getReleaseDate());
+        activityDetailsBinding.moviePopularity.setText(getString(R.string.popularity_format, movie.getPopularity()));
+        activityDetailsBinding.movieOverview.setText(movie.getOverview());
 
-        RecyclerView trailersRecyclerView = findViewById(R.id.rv_movies_trailers);
         this.adapter = new TrailersListAdapter(this);
-        trailersRecyclerView.setAdapter(adapter);
+        activityDetailsBinding.rvMoviesTrailers.setAdapter(adapter);
+        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(activityDetailsBinding.rvMoviesTrailers.getContext(),
+                DividerItemDecoration.VERTICAL);
+        activityDetailsBinding.rvMoviesTrailers.addItemDecoration(mDividerItemDecoration);
+        activityDetailsBinding.rvMoviesTrailers.setNestedScrollingEnabled(false);
+
+        this.reviews_adapter = new ReviewsListAdapter(this);
+        activityDetailsBinding.rvMoviesReviews.setAdapter(reviews_adapter);
+        DividerItemDecoration mDivider = new DividerItemDecoration(activityDetailsBinding.rvMoviesReviews.getContext(),
+                DividerItemDecoration.VERTICAL);
+        activityDetailsBinding.rvMoviesReviews.addItemDecoration(mDivider);
+        activityDetailsBinding.rvMoviesReviews.setNestedScrollingEnabled(false);
+
         if(savedInstanceState == null || !savedInstanceState.containsKey(TRAILERS)) {
             adapter.init(new ArrayList<>());
             new DetailsActivity.LoadTrailersListTask().execute();
+            reviews_adapter.init(new ArrayList<>(), 0, Integer.MAX_VALUE, this);
+            loadPage(1);
         } else {
             adapter.init(savedInstanceState.getParcelableArrayList(TRAILERS));
+            reviews_adapter.init(savedInstanceState.getParcelableArrayList(REVIEWS), savedInstanceState.getInt(PAGE), savedInstanceState.getInt(MAX_PAGE), this);
         }
-        DividerItemDecoration mDividerItemDecoration = new DividerItemDecoration(trailersRecyclerView.getContext(),
-                DividerItemDecoration.VERTICAL);
-        trailersRecyclerView.addItemDecoration(mDividerItemDecoration);
-        trailersRecyclerView.setNestedScrollingEnabled(false);
+    }
+
+    private void populateFavoriteButton() {
+        if (isFavoriteMovie) {
+            activityDetailsBinding.favoriteButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), android.R.drawable.btn_star_big_on));
+        } else {
+            activityDetailsBinding.favoriteButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), android.R.drawable.btn_star_big_off));
+        }
+        me.kaufhold.udacity.popularmovies.db.Movie dbMovie = new me.kaufhold.udacity.popularmovies.db.Movie(movie.getId().toString(), movie.getPosterPath(), movie.getTitle(), movie.getPopularity(), movie.getOverview(), movie.getReleaseDate());
+        activityDetailsBinding.favoriteButton.setOnClickListener(view -> {
+            if (isFavoriteMovie) {
+                activityDetailsBinding.favoriteButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), android.R.drawable.btn_star_big_off));
+                Thread thread = new Thread(() -> moviesDB.movieDAO().deleteMovie(dbMovie));
+                thread.start();
+            } else {
+                activityDetailsBinding.favoriteButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), android.R.drawable.btn_star_big_on));
+                Thread thread = new Thread(() -> moviesDB.movieDAO().insertMovie(dbMovie));
+                thread.start();
+            }
+            isFavoriteMovie = !isFavoriteMovie;
+        });
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+        outState.putBoolean(IS_FAVORITE, isFavoriteMovie);
+        outState.putParcelable(MOVIE, movie);
         outState.putParcelableArrayList(TRAILERS, adapter.createTrailersArray());
+        outState.putParcelableArrayList(REVIEWS, reviews_adapter.createReviewsArray());
         super.onSaveInstanceState(outState, outPersistentState);
     }
     
 
     @SuppressLint("StaticFieldLeak")
     public class LoadTrailersListTask extends AsyncTask<Void, Void, TrailersResultPage> {
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressBar.setVisibility(View.VISIBLE);
+            activityDetailsBinding.detailsProgressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected TrailersResultPage doInBackground(Void... voids) {
             TrailersResultPage page = null;
             TheMovieDatabaseApi api = RetrofitFactory.createApi();
-            Call<TrailersResultPage> trailers = api.loadMovieTrailers(movie.getId());
+            Call<TrailersResultPage> trailers = api.loadMovieTrailers(movie.getId().toString());
             if(trailers == null) {
                 return null;
             }
@@ -171,12 +223,66 @@ public class DetailsActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(TrailersResultPage page) {
-            progressBar.setVisibility(View.GONE);
+            activityDetailsBinding.detailsProgressBar.setVisibility(View.GONE);
             if (page == null) {
                 closeOnError();
                 return;
             }
             adapter.addTrailers(page.getResults());
+        }
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    public class LoadReviewsTask extends AsyncTask<Void, Void, ReviewsResultPage> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            activityDetailsBinding.detailsProgressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected ReviewsResultPage doInBackground(Void... voids) {
+            ReviewsResultPage page = null;
+            TheMovieDatabaseApi api = RetrofitFactory.createApi();
+            Call<ReviewsResultPage> reviews = api.loadMovieReviews(movie.getId().toString(), loadingPage);
+            if(reviews == null) {
+                return null;
+            }
+            try {
+                Response<ReviewsResultPage> apiResponse = reviews.execute();
+                if(apiResponse.isSuccessful()) {
+                    page = apiResponse.body();
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Request movie list failed.", e);
+            }
+            return page;
+        }
+
+        @Override
+        protected void onPostExecute(ReviewsResultPage page) {
+            activityDetailsBinding.detailsProgressBar.setVisibility(View.GONE);
+            if (page == null) {
+                closeOnError();
+                return;
+            } else {
+                if(page.getResults() != null && page.getResults().size() == 0) {
+                    activityDetailsBinding.reviewsLabel.setVisibility(View.GONE);
+                }
+            }
+            reviews_adapter.addReviewPage(page);
+        }
+    }
+
+    @Override
+    public void loadNextPage(int page) {
+        loadPage(page + 1);
+    }
+
+    public void loadPage(int page) {
+        if(loadingPage == null) {
+            loadingPage = page;
+            new LoadReviewsTask().execute();
         }
     }
 

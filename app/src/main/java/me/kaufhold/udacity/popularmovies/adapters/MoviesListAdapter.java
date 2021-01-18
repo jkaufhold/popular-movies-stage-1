@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,13 +28,13 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Mo
     private List<Movie> movies = new LinkedList<>();
     private int currentPage = -1;
     private int maxPage = Integer.MAX_VALUE;
-    private MoviePageLoader pageLoader;
+    private PageLoader pageLoader;
 
     public MoviesListAdapter(Context applicationContext) {
         this.context = applicationContext;
     }
 
-    public void init(List<Movie> movies, int currentPage, int maxPage, MoviePageLoader pageLoader) {
+    public void init(List<Movie> movies, int currentPage, int maxPage, PageLoader pageLoader) {
         this.movies = movies;
         this.currentPage = currentPage;
         this.maxPage = maxPage;
@@ -77,11 +76,6 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Mo
                         }
                     });
         }
-
-    }
-
-    private void closeOnLoadError() {
-        Toast.makeText(this.context, R.string.error_image_loading_message, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -93,11 +87,11 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Mo
         return count;
     }
 
-    public ArrayList<Movie> createMoviesArray() {
-        return new ArrayList<>(movies);
-    }
-
     public void addMoviePage(MovieResultPage page) {
+        if(page == null) {
+            closeOnError();
+            return;
+        }
         currentPage = page.getPage();
         maxPage = page.getTotalPages();
         addMovies(page.getResults());
@@ -124,7 +118,19 @@ public class MoviesListAdapter extends RecyclerView.Adapter<MoviesListAdapter.Mo
     }
 
     public void addMovies(List<Movie> movies) {
+        if(this.movies == null){
+            closeOnError();
+            return;
+        }
         this.movies.addAll(movies);
         notifyDataSetChanged();
+    }
+
+    private void closeOnError() {
+        Toast.makeText(this.context, R.string.no_movies_error_message, Toast.LENGTH_LONG).show();
+    }
+
+    private void closeOnLoadError() {
+        Toast.makeText(this.context, R.string.error_image_loading_message, Toast.LENGTH_LONG).show();
     }
 }

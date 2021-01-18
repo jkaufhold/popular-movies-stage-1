@@ -24,12 +24,9 @@ public class Trailer implements Parcelable {
 
     public Trailer(Parcel in) {
         this.id = in.readString();
-        in.readString(); // language_iso_code
-        in.readString(); // country_iso_code
         this.key = in.readString();
         this.name = in.readString();
         this.site = in.readString();
-        in.readLong(); // size
         this.type = in.readString();
     }
 
@@ -58,9 +55,4 @@ public class Trailer implements Parcelable {
     public String getKey() {
         return key;
     }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
 }

@@ -3,9 +3,11 @@
     <string-array name="movies_sort_order_keys">
         <item>popularity</item>
         <item>rating</item>
+        <item>favorites</item>
     </string-array>
     <string-array name="movies_sort_order_values">
-        <item>popularity</item>
-        <item>rating</item>
+        <item>popular</item>
+        <item>top_rated</item>
+        <item>favorites</item>
     </string-array>
 </resources>

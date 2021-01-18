@@ -1,125 +1,136 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<layout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
+
+<ScrollView
+    style="@style/FullMatchParent"
     tools:context=".DetailsActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        style="@style/FullWidthContentHeight">
 
         <TextView
             android:id="@+id/movie_details_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/title_colour"
+            style="@style/DetailsTitle"
             android:text="@string/default_movie_title"
-            android:textSize="30sp"
-            android:textStyle="bold"
-            android:padding="@dimen/activity_vertical_margin"
-            android:background="@color/colorAccent"
-            android:fontFamily="monospace"
-            android:elevation="4dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/image_iv"
-            android:layout_width="123dp"
-            android:layout_marginTop="@dimen/activity_top_margin"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:id="@+id/movie_image"
+            style="@style/DetailsImage"
             android:contentDescription="@string/movie_image_description"
-            android:layout_height="185dp"
-            android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/separator"
             app:layout_constraintTop_toBottomOf="@+id/movie_details_title" />
 
         <TextView
             android:id="@+id/release_date_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="0dp"
-            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+            style="@style/InfoLabel"
             android:text="@string/release_date_label"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/image_iv"
-            app:layout_constraintTop_toTopOf="@+id/image_iv" />
+            app:layout_constraintStart_toEndOf="@+id/movie_image"
+            app:layout_constraintTop_toTopOf="@+id/movie_image" />
 
         <TextView
             android:id="@+id/release_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+            style="@style/InfoValue"
             app:layout_constraintStart_toEndOf="@+id/release_date_label"
             app:layout_constraintTop_toTopOf="@+id/release_date_label" />
 
         <TextView
             android:id="@+id/popularity_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="9dp"
+            style="@style/InfoLabel"
+            android:layout_marginTop="@dimen/activity_top_margin"
             android:text="@string/popularity_label"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/image_iv"
+            app:layout_constraintStart_toEndOf="@+id/movie_image"
             app:layout_constraintTop_toBottomOf="@+id/release_date_label" />
 
         <TextView
             android:id="@+id/movie_popularity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-            android:layout_marginStart="16dp"
-            android:textColor="@color/colorPrimaryDark"
+            style="@style/InfoValue"
             app:layout_constraintStart_toEndOf="@+id/popularity_label"
             app:layout_constraintTop_toTopOf="@+id/popularity_label" />
 
-        <ScrollView
-            android:id="@+id/movie_overview_scroll"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="@dimen/activity_top_margin"
-            app:layout_constraintBottom_toBottomOf="@+id/image_iv"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/image_iv"
-            app:layout_constraintTop_toBottomOf="@+id/popularity_label" >
+        <ImageButton
+            android:id="@+id/favorite_button"
+            style="@style/StarImageButton"
+            android:contentDescription="@string/favorite_btn_description"
+            android:src="@android:drawable/btn_star_big_off"
+            app:layout_constraintStart_toEndOf="@+id/movie_image"
+            app:layout_constraintTop_toBottomOf="@+id/popularity_label" />
 
         <TextView
             android:id="@+id/movie_overview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-        </ScrollView>
+            style="@style/MovieOverview"
+            app:layout_constraintBottom_toTopOf="@id/separator"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/movie_image"
+            app:layout_constraintTop_toBottomOf="@+id/favorite_button"
+            tools:text="@string/error_message" />
+
+        <View
+            android:id="@+id/separator"
+            style="@style/Separator"
+            app:layout_constraintBottom_toTopOf="@+id/trailers_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/movie_overview" />
+
+        <TextView
+            android:id="@+id/trailers_label"
+            style="@style/FullWidthLabel"
+            android:text="@string/trailers_label"
+            app:layout_constraintBottom_toTopOf="@+id/rv_movies_trailers"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/separator" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_movies_trailers"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="16dp"
+            style="@style/FullWidthContentHeight"
             android:orientation="vertical"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/reviews_label"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/image_iv"
+            app:layout_constraintTop_toBottomOf="@+id/trailers_label"
+            app:layout_constraintVertical_bias="1.0"
             app:reverseLayout="false"
-            app:spanCount="2"/>
+            app:spanCount="2" />
+
+        <TextView
+            android:id="@+id/reviews_label"
+            style="@style/FullWidthLabel"
+            android:text="@string/reviews_label"
+            app:layout_constraintBottom_toTopOf="@+id/rv_movies_reviews"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rv_movies_trailers" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_movies_reviews"
+            style="@style/FullWidthContentHeight"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/reviews_label"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="1.0"
+            />
 
         <ProgressBar
             android:id="@+id/details_progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone"
+            style="@style/ProgressBarInViewsCenter"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/movie_overview_scroll" />
+            app:layout_constraintTop_toBottomOf="@+id/movie_overview" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
+</layout>

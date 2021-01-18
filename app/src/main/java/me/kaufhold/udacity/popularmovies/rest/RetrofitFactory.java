@@ -5,12 +5,10 @@ import android.content.Context;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import me.kaufhold.udacity.popularmovies.R;
 import okhttp3.HttpUrl;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
@@ -22,24 +20,22 @@ public class RetrofitFactory {
     public static void initialize(Context context, String language) {
         String apiKey = context.getResources().getString(R.string.themoviedatabase_api_key);
 
-        Gson gson = new GsonBuilder()
+        GsonBuilder gsonBuilder = new GsonBuilder()
                 .setLenient()
-                .create();
+                .serializeNulls();
+        Gson gson = gsonBuilder.create();
 
-        OkHttpClient okHttpClient = new OkHttpClient().newBuilder().addInterceptor(new Interceptor() {
-            @Override
-            public okhttp3.Response intercept(Chain chain) throws IOException {
-                Request request = chain.request();
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder().addInterceptor(chain -> {
+            Request request = chain.request();
 
-                HttpUrl url = request.url().newBuilder()
-                        .addQueryParameter("api_key", apiKey)
-                        .addQueryParameter("language", language)
-                        .build();
-                request = request.newBuilder().url(url).build();
+            HttpUrl url = request.url().newBuilder()
+                    .addQueryParameter("api_key", apiKey)
+                    .addQueryParameter("language", language)
+                    .build();
+            request = request.newBuilder().url(url).build();
 
-                Request newRequest = request.newBuilder().url(url).build();
-                return chain.proceed(newRequest);
-            }
+            Request newRequest = request.newBuilder().url(url).build();
+            return chain.proceed(newRequest);
         }).build();
 
         INSTANCE = new Retrofit.Builder()

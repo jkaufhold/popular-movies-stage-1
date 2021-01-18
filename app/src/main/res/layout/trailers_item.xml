@@ -2,31 +2,30 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    style="@style/FullWidthContentHeight"
+    android:padding="@dimen/activity_padding"
     xmlns:tools="http://schemas.android.com/tools">
 
     <ImageView
         android:id="@+id/iv_play"
-        android:layout_width="38dp"
-        android:layout_height="38dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:contentDescription="@string/play_image_description"
-        android:src="@drawable/play"
+        android:src="@android:drawable/ic_media_play"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_margin="@dimen/activity_vertical_margin"/>
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/tv_trailer_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:contentDescription="@string/trailer_name"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/iv_play"
         app:layout_constraintTop_toTopOf="parent"
-        android:textSize="16sp"
-        tools:text="Trailer 1"
-        android:layout_margin="@dimen/activity_vertical_margin">
-    </TextView>
+        tools:text="Trailer 1" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,45 +4,53 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.LiveData;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-import me.kaufhold.udacity.popularmovies.adapters.MoviePageLoader;
+import me.kaufhold.udacity.popularmovies.adapters.PageLoader;
 import me.kaufhold.udacity.popularmovies.adapters.MoviesListAdapter;
+import me.kaufhold.udacity.popularmovies.databinding.ActivityMainBinding;
 import me.kaufhold.udacity.popularmovies.db.FavoriteMoviesDB;
+import me.kaufhold.udacity.popularmovies.model.Movie;
 import me.kaufhold.udacity.popularmovies.model.MovieResultPage;
 import me.kaufhold.udacity.popularmovies.rest.RetrofitFactory;
 import me.kaufhold.udacity.popularmovies.rest.TheMovieDatabaseApi;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements MoviePageLoader {
+public class MainActivity extends AppCompatActivity implements PageLoader {
     private static final String TAG = MainActivity.class.getSimpleName();
-    public static final String MOVIES = "movies";
-    public static final String PAGE = "page";
-    public static final String MAX_PAGE = "maxPage";
+    public static final String MOVIES_PAGE = "movies_page";
 
-    private ProgressBar progressBar;
     private SharedPreferences sharedPreferences;
     private MoviesListAdapter adapter;
     private Integer loadingPage = null;
 
+    private MovieResultPage page;
+    private ArrayList<Movie> dbMovies;
     private FavoriteMoviesDB moviesDB;
+
+    private ActivityMainBinding activityMainBinding;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -51,44 +59,48 @@ public class MainActivity extends AppCompatActivity implements MoviePageLoader {
         return true;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        activityMainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         moviesDB = FavoriteMoviesDB.getInstance(this.getApplicationContext());
+        LiveData<List<me.kaufhold.udacity.popularmovies.db.Movie>> rawDBMovies = moviesDB.movieDAO().loadMovies();
+        rawDBMovies.observe(this, dbMoviesList -> dbMovies = dbMoviesList.stream().map(me.kaufhold.udacity.popularmovies.db.Movie::toModelMovie).collect(Collectors.toCollection(ArrayList::new)));
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        progressBar = findViewById(R.id.progress_bar);
 
         RecyclerView moviesRecyclerView = findViewById(R.id.rv_movies_list);
         moviesRecyclerView.setHasFixedSize(true);
         this.adapter = new MoviesListAdapter(this);
         moviesRecyclerView.setAdapter(adapter);
-        if(savedInstanceState == null || !savedInstanceState.containsKey(MOVIES)) {
+        if(savedInstanceState == null || !savedInstanceState.containsKey(MOVIES_PAGE)) {
+            adapter.init(new ArrayList<>(), 0, TheMovieDatabaseApi.DEFAULT_MAX_MOVIES_PAGES_COUNT, this);
             loadPage(1);
-            adapter.init(new ArrayList<>(), 0, Integer.MAX_VALUE, this);
         } else {
-            adapter.init(savedInstanceState.getParcelableArrayList(MOVIES), savedInstanceState.getInt(PAGE), savedInstanceState.getInt(MAX_PAGE), this);
+            page = savedInstanceState.getParcelable(MOVIES_PAGE);
+            if(page == null){
+                closeOnError();
+                return;
+            }
+            adapter.init(page.getResults(), page.getPage(), page.getTotalPages(), this);
         }
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
-        outState.putParcelableArrayList(MOVIES, adapter.createMoviesArray());
-        super.onSaveInstanceState(outState, outPersistentState);
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putParcelable(MOVIES_PAGE, page);
+        super.onSaveInstanceState(outState);
     }
 
-    private void closeOnError() {
-        Toast.makeText(this, R.string.error_message, Toast.LENGTH_LONG).show();
-    }
-
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void loadNextPage(int page) {
         loadPage(page + 1);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void loadPage(int page) {
         if(loadingPage == null) {
             loadingPage = page;
@@ -102,21 +114,21 @@ public class MainActivity extends AppCompatActivity implements MoviePageLoader {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressBar.setVisibility(View.VISIBLE);
+            Objects.requireNonNull(activityMainBinding.progressBar).setVisibility(View.VISIBLE);
         }
 
         @Override
         protected MovieResultPage doInBackground(Void... voids) {
-            MovieResultPage page = null;
+            String sortOrder = sharedPreferences.getString(getString(R.string.sort_order_key),
+                                                           getString(R.string.sort_order_default));
+            String favoritesSortOrder = getString(R.string.sort_order_favorites);
+            if(sortOrder.equals(favoritesSortOrder)) {
+                page = getMovieResultPageFromDB();
+                return page;
+            }
+
             TheMovieDatabaseApi api = RetrofitFactory.createApi();
-            String default_sort_order = getString(R.string.sort_order_default);
-            String sortOrder = sharedPreferences.getString(getString(R.string.sort_order_key), default_sort_order);
-            Call<MovieResultPage> movies;
-            movies = api.loadMovies(
-                    (sortOrder.equals(default_sort_order))
-                            ?TheMovieDatabaseApi.POPULAR
-                            :TheMovieDatabaseApi.TOP_RATED,
-                    loadingPage);
+            Call<MovieResultPage> movies = api.loadMovies(sortOrder, loadingPage);
             if(movies == null) {
                 return null;
             }
@@ -131,15 +143,29 @@ public class MainActivity extends AppCompatActivity implements MoviePageLoader {
             return page;
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
-        protected void onPostExecute(MovieResultPage page) {
+        protected void onPostExecute(MovieResultPage resultPage) {
+            Objects.requireNonNull(activityMainBinding.progressBar).setVisibility(View.GONE);
             loadingPage = null;
-            progressBar.setVisibility(View.GONE);
-            if (page == null) {
-                closeOnError();
-                return;
+            if (resultPage == null) {
+                page = getMovieResultPageFromDB();
+            } else {
+                page = resultPage;
             }
             adapter.addMoviePage(page);
+        }
+
+        private MovieResultPage getMovieResultPageFromDB(){
+            if(dbMovies == null){
+                List<me.kaufhold.udacity.popularmovies.db.Movie> rawDBMovies = moviesDB.movieDAO().loadMoviesList();
+                if(rawDBMovies == null || rawDBMovies.isEmpty()) {
+                    return null;
+                }
+                dbMovies = rawDBMovies.stream().map(me.kaufhold.udacity.popularmovies.db.Movie::toModelMovie).collect(Collectors.toCollection(ArrayList::new));
+            }
+            int totalPages = (dbMovies.size()/TheMovieDatabaseApi.MAX_MOVIES_COUNT_PER_PAGE)+1;
+            return new MovieResultPage(1, totalPages, dbMovies);
         }
     }
 
@@ -153,7 +179,10 @@ public class MainActivity extends AppCompatActivity implements MoviePageLoader {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-
         }
+    }
+
+    private void closeOnError() {
+        Toast.makeText(this, R.string.no_movies_error_message, Toast.LENGTH_LONG).show();
     }
 }

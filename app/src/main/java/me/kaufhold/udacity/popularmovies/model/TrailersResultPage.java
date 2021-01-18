@@ -11,7 +11,4 @@ public class TrailersResultPage {
     public ArrayList<Trailer> getResults() {
         return results;
     }
-    public void setResults(ArrayList<Trailer> results) {
-        this.results = results;
-    }
 }
